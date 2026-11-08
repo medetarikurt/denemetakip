@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f5fbf">
+<title>Deneme Takip</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mut:#667085;--line:#dfe3ea;--acc:#1f5fbf;--ok:#1b7f4b;--bad:#c23b32;--warn:#b7791f;--shadow:0 5px 18px rgba(20,35,60,.05)}
+@media(prefers-color-scheme:dark){:root{--bg:#12161c;--card:#1b212b;--ink:#e8ecf2;--mut:#9aa5b5;--line:#2b3340;--acc:#6ea4f4;--ok:#4cc38a;--bad:#f27c73;--warn:#e0b04f;--shadow:none}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,system-ui,sans-serif;padding:max(12px,env(safe-area-inset-top)) 12px 40px}main{max-width:760px;margin:0 auto}h1{font-size:25px;margin:8px 0 4px;letter-spacing:-.4px}h2{font-size:17px;margin:0 0 9px}h3{font-size:15px;margin:16px 0 7px}.sub{margin:0 0 14px;color:var(--mut);font-size:13px}section{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px;margin-bottom:12px;box-shadow:var(--shadow)}button,input,select{font:inherit}button{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:10px 14px;margin:4px 6px 4px 0;cursor:pointer}button.s{background:transparent;color:var(--acc);border:1px solid var(--line)}button.danger{background:transparent;color:var(--bad);border:1px solid var(--line)}button:disabled{opacity:.48;cursor:not-allowed}input[type=text],input[type=date],input[type=file],select{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}input[type=file]{font-size:14px}.field{margin:10px 0}.field label{display:block;font-size:13px;font-weight:650;margin-bottom:5px}.m{color:var(--mut);font-size:13px}.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:7px 5px;border-bottom:1px solid var(--line)}td.n,th.n{text-align:right;white-space:nowrap}.q{border-top:1px solid var(--line);padding:10px 0}.q b{margin-right:6px}.seg{display:inline-flex;gap:5px;flex-wrap:wrap;margin-top:6px}.seg button{background:transparent;color:var(--ink);border:1px solid var(--line);padding:6px 10px;margin:0;font-size:13px}.seg button.on{background:var(--acc);color:#fff;border-color:var(--acc)}#msg{position:sticky;top:5px;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:0 0 10px;display:none;box-shadow:var(--shadow)}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px}.local-pill{font-size:11px;color:var(--ok);border:1px solid var(--line);border-radius:100px;padding:5px 9px;white-space:nowrap}.toolbar{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}.toolbar button{font-size:13px}.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.stat{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px}.stat strong{display:block;font-size:20px}.stat span{font-size:11px;color:var(--mut)}.history-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border-top:1px solid var(--line);padding:10px 0}.history-row:first-child{border-top:0}.history-name{font-weight:650}.history-actions{display:flex;gap:4px;flex-wrap:wrap}.history-actions button{font-size:12px;padding:6px 9px}.empty{padding:14px 0;text-align:center;color:var(--mut);font-size:13px}details{border-top:1px solid var(--line);padding-top:9px;margin-top:10px}summary{cursor:pointer;font-size:14px;font-weight:600}#apiState{margin-top:7px}.foot{font-size:11px;color:var(--mut);text-align:center;padding:8px}
+@media(max-width:430px){.history-row{grid-template-columns:1fr}.history-actions{justify-content:flex-start}.stat strong{font-size:18px}table{font-size:12px}}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="topline"><div><h1>Deneme Takip</h1><p class="sub">TUS denemelerini oku, sonuçlarını kaydet ve gelişimini izle.</p></div><span class="local-pill">● Yerel kayıt</span></div>
+  <div id="msg" role="status" aria-live="polite"></div>
+  <div id="app">
+    <section>
+      <h2>1. Yeni deneme</h2>
+      <div class="field"><label for="ad">Deneme adı</label><input type="text" id="ad" placeholder="Örn. 5. Cilt 3. Deneme" maxlength="100"></div>
+      <div class="field"><label for="tarih">Deneme tarihi</label><input type="date" id="tarih"></div>
+      <div class="field"><label for="dosya">Deneme sayfalarının fotoğrafları</label><input type="file" id="dosya" accept="image/*" multiple></div>
+      <p class="m" id="dosyaSay">En fazla 14 fotoğraf seçebilirsin.</p>
+      <button id="okuBtn" disabled>Fotoğrafları oku</button>
+      <p class="m" id="apiState">Fotoğraf analizi bağlantısı hazırlanıyor…</p>
+    </section>
+
+    <section id="supheBox" hidden>
+      <h2>2. Şüpheli soruları kontrol et</h2>
+      <p class="m" id="supheOzet"></p>
+      <div id="supheList"></div>
+      <details><summary>Rastgele 10 kesin soruyu da kontrol et</summary><div id="kontrolList"></div></details>
+      <button id="hesapBtn">Hesapla ve kaydet</button>
+    </section>
+
+    <section id="sonucBox" hidden>
+      <h2>3. Deneme sonucu</h2>
+      <div id="sonuc"></div>
+      <button id="etiketBtn">Yanlışlara konu etiketi ekle</button>
+      <div id="etiketSonuc"></div>
+    </section>
+
+    <section>
+      <div class="topline"><h2>Geçmiş ve trend</h2><button class="s" id="gecmisBtn">Yenile</button></div>
+      <div id="trend"><p class="empty">Henüz kaydedilmiş deneme yok.</p></div>
+    </section>
+
+    <section>
+      <h2>Veri yedeği</h2>
+      <p class="m">Deneme kayıtları bu tarayıcıda tutulur. Tarayıcı verilerini silmeden veya başka cihaza geçmeden önce yedek al.</p>
+      <div class="toolbar"><button class="s" id="yedekBtn">JSON yedeği indir</button><button class="s" id="iceAktarBtn">Yedek geri yükle</button><button class="danger" id="tumunuSilBtn">Tüm kayıtları sil</button></div>
+      <input type="file" id="yedekDosya" accept="application/json,.json" hidden>
+    </section>
+  </div>
+  <p class="foot">Deneme sonuçları bu cihazın tarayıcısında saklanır. Fotoğraf analizi için internet bağlantısı gerekir.</p>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script>
+'use strict';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCAyDhChxJqX99Flyqv-1VPWja8PY2fryE",
+  authDomain: "denemetakip-3d817.firebaseapp.com",
+  projectId: "denemetakip-3d817",
+  storageBucket: "denemetakip-3d817.firebasestorage.app",
+  messagingSenderId: "729662326941",
+  appId: "1:729662326941:web:a0b2148a5b1d9af14d2c74"
+};
+
+// Mevcut 200 soruluk TUS yerleşimi korunmuştur.
+const SABLON = [
+  ["Anatomi",1,13],["Fizyoloji",14,28],["Biyokimya",29,46],["Mikrobiyoloji",47,64],["Patoloji",65,82],["Farmakoloji",83,100],
+  ["Dahiliye",101,135],["Pediatri",136,161],["Genel Cerrahi + Küçük Stajlar",162,190],["Kadın Doğum",191,200]
+];
+const TOPLAM = 200;
+const STORAGE_KEY = 'denemeTakip.local.v1';
+const $ = (id) => document.getElementById(id);
+let S = { files: [], items: {}, final: {}, docId: null, wrong: [] };
+let authReady = null;
+let records = loadRecords();
+
+function msg(t, err) {
+  const m = $('msg'); m.textContent = t || ''; m.style.display = t ? 'block' : 'none';
+  m.style.color = err ? 'var(--bad)' : 'var(--ink)';
+}
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function derse(no) { const s = SABLON.find(x => no >= x[1] && no <= x[2]); return s ? s[0] : 'Diğer'; }
+function uid() { return (crypto && crypto.randomUUID) ? crypto.randomUUID() : 'd-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
+function todayISO() { const d = new Date(); const off = d.getTimezoneOffset(); return new Date(d.getTime() - off * 60000).toISOString().slice(0,10); }
+function loadRecords() {
+  try { const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); return Array.isArray(data) ? data : []; }
+  catch (e) { console.warn('Yerel kayıtlar okunamadı:', e); return []; }
+}
+function saveRecords() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); return true; }
+  catch (e) { msg('Tarayıcı depolama alanı dolu veya kapalı. JSON yedeği alıp eski kayıtları temizle.', true); return false; }
+}
+function byDate(a,b) { return String(a.tarih || '').localeCompare(String(b.tarih || '')) || String(a.createdAt || '').localeCompare(String(b.createdAt || '')); }
+
+// Google girişi yok: arka plandaki güvenli Claude fonksiyonunu çağırabilmek için anonim Firebase oturumu açılır.
+try {
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const fn = firebase.app().functions('europe-west1').httpsCallable('analyzeExam', { timeout: 300000 });
+  authReady = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(() => new Promise((resolve, reject) => {
+    let started = false, settled = false, unsubscribe = () => {};
+    unsubscribe = auth.onAuthStateChanged(user => {
+      if (settled) return;
+      if (user) { settled = true; unsubscribe(); resolve(user); return; }
+      if (!started) {
+        started = true;
+        auth.signInAnonymously().catch(error => { if (!settled) { settled = true; unsubscribe(); reject(error); } });
+      }
+    }, error => { if (!settled) { settled = true; unsubscribe(); reject(error); } });
+  }));
+  authReady.then(() => { $('apiState').textContent = 'Fotoğraf analizi hazır. Google girişi gerekmiyor.'; $('apiState').className = 'm ok'; })
+    .catch(error => { $('apiState').textContent = 'Fotoğraf analizi açılamadı: Firebase Console’da Anonymous girişini etkinleştir. (' + (error.message || error) + ')'; $('apiState').className = 'm bad'; });
+  window.callExamAI = async data => { await authReady; return fn(data); };
+} catch (error) {
+  authReady = Promise.reject(error);
+  window.callExamAI = async () => { throw error; };
+  $('apiState').textContent = 'Firebase başlatılamadı: ' + (error.message || error);
+  $('apiState').className = 'm bad';
+}
+
+async function kucult(file) {
+  if (!file.type.startsWith('image/')) throw new Error('Seçilen dosyalardan biri görüntü değil.');
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(bmp.width * scale));
+  canvas.height = Math.max(1, Math.round(bmp.height * scale));
+  const ctx = canvas.getContext('2d', {alpha:false});
+  ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+  if (bmp.close) bmp.close();
+  return canvas.toDataURL('image/jpeg', 0.74).split(',')[1];
+}
+async function gorseller() {
+  const images = await Promise.all(S.files.map(kucult));
+  const totalBytes = images.reduce((sum, item) => sum + Math.floor(item.length * 0.75), 0);
+  if (totalBytes > 8 * 1024 * 1024) throw new Error('Fotoğrafların toplam boyutu çok büyük. Daha az veya daha küçük fotoğraf seç.');
+  return images;
+}
+
+$('tarih').value = todayISO();
+$('dosya').onchange = e => {
+  const selected = [...e.target.files];
+  if (selected.length > 14) msg('En fazla 14 fotoğraf seçebilirsin. İlk 14 fotoğraf kullanılacak.', true);
+  S.files = selected.slice(0,14);
+  $('dosyaSay').textContent = S.files.length ? S.files.length + ' fotoğraf seçildi' : 'En fazla 14 fotoğraf seçebilirsin.';
+  $('okuBtn').disabled = !S.files.length;
+};
+
+$('okuBtn').onclick = async () => {
+  if (!$('ad').value.trim()) return msg('Önce deneme adını yaz.', true);
+  if (!S.files.length) return msg('Önce deneme fotoğraflarını seç.', true);
+  $('okuBtn').disabled = true; msg('Fotoğraflar okunuyor. Sayfa sayısına göre biraz sürebilir…');
+  try {
+    const r = await window.callExamAI({mode:'read', images:await gorseller()});
+    const list = r?.data?.items;
+    if (!Array.isArray(list)) throw new Error('Yapay zekâ beklenen soru listesini döndürmedi. Tekrar deneyebilirsin.');
+    S.items = {}; S.final = {}; S.docId = null; S.wrong = [];
+    list.forEach(x => {
+      const no = Number(x.no);
+      if (Number.isInteger(no) && no >= 1 && no <= TOPLAM) {
+        const result = ['D','Y','B'].includes(x.r) ? x.r : 'B';
+        const certainty = x.c === 'kesin' && ['D','Y','B'].includes(x.r) ? 'kesin' : 'suphe';
+        S.items[no] = {no, r:result, c:certainty, note:String(x.note || '')};
+      }
+    });
+    for (let n=1;n<=TOPLAM;n++) {
+      if (!S.items[n]) S.items[n] = {no:n,r:'B',c:'suphe',note:'fotoğraflarda bulunamadı'};
+      if (S.items[n].c === 'kesin') S.final[n] = S.items[n].r;
+    }
+    $('supheBox').hidden = false; $('sonucBox').hidden = true;
+    supheCiz(); msg('Okuma tamamlandı. Şüpheli işaretleri kontrol et.');
+    $('supheBox').scrollIntoView({behavior:'smooth',block:'start'});
+  } catch (e) { msg('Fotoğraf okuma hatası: ' + (e.message || e), true); }
+  finally { $('okuBtn').disabled = false; }
+};
+
+function segHtml(n) {
+  return `<span class="seg" data-n="${n}">` + [['D','Doğru'],['Y','Yanlış'],['B','Boş']]
+    .map(([k,label]) => `<button type="button" class="${S.final[n] === k ? 'on' : ''}" data-k="${k}" aria-pressed="${S.final[n] === k}">${label}</button>`).join('') + '</span>';
+}
+function satir(n, showNote) {
+  const x = S.items[n];
+  return `<div class="q"><b>${n}.</b><span class="m">${escapeHTML(derse(n))}${showNote && x.note ? ' · ' + escapeHTML(x.note) : ''}</span><br>${segHtml(n)}</div>`;
+}
+function supheCiz() {
+  const sup = Object.values(S.items).filter(x => x.c !== 'kesin').map(x => x.no).sort((a,b)=>a-b);
+  const kes = Object.values(S.items).filter(x => x.c === 'kesin').map(x => x.no);
+  const rnd = [...kes].sort(() => Math.random() - .5).slice(0,10).sort((a,b)=>a-b);
+  $('supheOzet').textContent = `${kes.length} soru kesin, ${sup.length} soru şüpheli. Şüpheli soruları ve istersen rastgele kesin soruları kontrol et.`;
+  $('supheList').innerHTML = sup.map(n => satir(n,true)).join('') || '<p class="m">Şüpheli soru yok.</p>';
+  $('kontrolList').innerHTML = rnd.map(n => satir(n,false)).join('') || '<p class="m">Kontrol edilecek kesin soru bulunamadı.</p>';
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.seg button'); if (!b) return;
+  const n = Number(b.parentElement.dataset.n); if (!Number.isInteger(n)) return;
+  S.final[n] = b.dataset.k;
+  [...b.parentElement.children].forEach(c => { const active = c === b; c.classList.toggle('on',active); c.setAttribute('aria-pressed',String(active)); });
+});
+
+function hesapla() {
+  const tab = SABLON.map(([ders,a,b]) => {
+    let d=0,y=0,bos=0;
+    for(let n=a;n<=b;n++){const r=S.final[n];if(r==='D')d++;else if(r==='Y')y++;else bos++;}
+    return {ders,d,y,bos,net:d-y/4};
+  });
+  const top = f => tab.slice(f[0],f[1]).reduce((s,t)=>({d:s.d+t.d,y:s.y+t.y,bos:s.bos+t.bos,net:s.net+t.net}),{d:0,y:0,bos:0,net:0});
+  return {tab,temel:top([0,6]),klinik:top([6,10])};
+}
+function tabloHtml(h) {
+  const row=(name,t,bold)=>`<tr><td>${bold?'<b>'+escapeHTML(name)+'</b>':escapeHTML(name)}</td><td class="n ok">${t.d}</td><td class="n bad">${t.y}</td><td class="n">${t.bos}</td><td class="n"><b>${t.net.toFixed(2)}</b></td></tr>`;
+  const total={d:h.temel.d+h.klinik.d,y:h.temel.y+h.klinik.y,bos:h.temel.bos+h.klinik.bos,net:h.temel.net+h.klinik.net};
+  return `<table><thead><tr><th>Ders</th><th class="n">D</th><th class="n">Y</th><th class="n">B</th><th class="n">Net</th></tr></thead><tbody>${h.tab.map(t=>row(t.ders,t,false)).join('')}${row('Temel',h.temel,true)}${row('Klinik',h.klinik,true)}${row('Toplam',total,true)}</tbody></table>`;
+}
+
+$('hesapBtn').onclick = () => {
+  const unset = TOPLAM - Object.keys(S.final).length;
+  if (unset > 0 && !confirm(unset + ' soru henüz işaretlenmedi. Bunlar boş kabul edilecek. Devam?')) return;
+  const h=hesapla(), sonuc={}; S.wrong=[];
+  for(let n=1;n<=TOPLAM;n++){sonuc[n]=S.final[n]||'B';if(sonuc[n]==='Y')S.wrong.push(n);}
+  const record={id:uid(),ad:$('ad').value.trim(),tarih:$('tarih').value||todayISO(),createdAt:new Date().toISOString(),sonuc,ozet:h,etiketler:{}};
+  records.push(record); if(!saveRecords()){records=records.filter(x=>x.id!==record.id);return;}
+  S.docId=record.id;
+  $('sonucBox').hidden=false; $('sonuc').innerHTML=tabloHtml(h);
+  $('etiketSonuc').innerHTML=''; $('etiketBtn').disabled=!S.wrong.length;
+  msg('Deneme bu tarayıcıya kaydedildi.'); renderHistory(); $('sonucBox').scrollIntoView({behavior:'smooth',block:'start'});
+};
+
+$('etiketBtn').onclick = async () => {
+  if(!S.docId||!S.wrong.length)return msg('Etiketlenecek yanlış bulunamadı.',true);
+  const button=$('etiketBtn');button.disabled=true;msg('Yanlışların konuları analiz ediliyor…');
+  try{
+    const r=await window.callExamAI({mode:'tag',images:await gorseller(),wrong:S.wrong});
+    const items=r?.data?.items;if(!Array.isArray(items))throw new Error('Konu analizi beklenen formatta dönmedi.');
+    const et={};items.forEach(x=>{const no=Number(x.no);if(Number.isInteger(no)&&S.wrong.includes(no))et[no]={ders:String(x.ders||'Diğer'),konu:String(x.konu||'okunamadı'),c:x.c==='kesin'?'kesin':'suphe'};});
+    const index=records.findIndex(x=>x.id===S.docId);if(index<0)throw new Error('Kaydedilmiş deneme bulunamadı.');
+    records[index].etiketler=et;if(!saveRecords())throw new Error('Kayıt güncellenemedi.');
+    const count=Object.keys(et).length,suspicious=Object.values(et).filter(x=>x.c!=='kesin').length;
+    $('etiketSonuc').innerHTML=`<p class="m">${count} yanlış etiketlendi (${suspicious} şüpheli konu).</p><table><thead><tr><th>Soru</th><th>Ders</th><th>Konu</th></tr></thead><tbody>`+
+      Object.entries(et).sort((a,b)=>Number(a[0])-Number(b[0])).map(([no,x])=>`<tr><td>${no}</td><td>${escapeHTML(x.ders)}</td><td>${escapeHTML(x.konu)}${x.c!=='kesin'?' <span class="warn">?</span>':''}</td></tr>`).join('')+'</tbody></table>';
+    msg('Konu etiketleri kaydedildi.');renderHistory();
+  }catch(e){msg('Konu analizi hatası: '+(e.message||e),true);}
+  finally{button.disabled=false;}
+};
+
+function renderHistory(){
+  const host=$('trend');const dn=[...records].sort(byDate);
+  if(!dn.length){host.innerHTML='<p class="empty">Henüz kaydedilmiş deneme yok.</p>';return;}
+  const recent=dn.slice(-20);
+  const avg=(key)=>recent.reduce((s,x)=>s+Number(x.ozet?.[key]?.net||0),0)/recent.length;
+  const totalNet=recent.map(x=>Number(x.ozet?.temel?.net||0)+Number(x.ozet?.klinik?.net||0));
+  host.innerHTML=`<div class="stat-grid"><div class="stat"><strong>${dn.length}</strong><span>Toplam deneme</span></div><div class="stat"><strong>${avg('temel').toFixed(1)}</strong><span>Son ${recent.length} temel ort.</span></div><div class="stat"><strong>${avg('klinik').toFixed(1)}</strong><span>Son ${recent.length} klinik ort.</span></div></div>`+
+    `<h3>Deneme geçmişi</h3>`+dn.slice().reverse().map(x=>{
+      const net=Number(x.ozet?.temel?.net||0)+Number(x.ozet?.klinik?.net||0);
+      return `<div class="history-row"><div><div class="history-name">${escapeHTML(x.ad)}</div><div class="m">${escapeHTML(x.tarih||'Tarih yok')} · Temel ${Number(x.ozet?.temel?.net||0).toFixed(2)} · Klinik ${Number(x.ozet?.klinik?.net||0).toFixed(2)} · <b>${net.toFixed(2)} net</b></div></div><div class="history-actions"><button class="s" data-action="detail" data-id="${escapeHTML(x.id)}">Detay</button><button class="danger" data-action="delete" data-id="${escapeHTML(x.id)}">Sil</button></div></div>`;
+    }).join('')+
+    `<h3>Son 20 deneme – toplam net</h3><table><thead><tr><th>Deneme</th><th class="n">Net</th></tr></thead><tbody>${recent.map(x=>`<tr><td>${escapeHTML(x.ad)}</td><td class="n">${(Number(x.ozet?.temel?.net||0)+Number(x.ozet?.klinik?.net||0)).toFixed(2)}</td></tr>`).join('')}</tbody></table>`+
+    renderTopicTrend(recent);
+}
+function renderTopicTrend(dn){
+  const count={};
+  dn.forEach(x=>Object.values(x.etiketler||{}).forEach(v=>{const k=String(v.ders||'Diğer')+' / '+String(v.konu||'okunamadı');count[k]=(count[k]||0)+1;}));
+  const sorted=Object.entries(count).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  if(!sorted.length)return '<p class="m">Konu bazlı trend için denemelerde “Yanlışlara konu etiketi ekle” işlemini çalıştır.</p>';
+  return `<h3>En sık yanlış çıkan konular</h3><ol>${sorted.map(([k,n])=>`<li>${escapeHTML(k)} <span class="m">(${n} yanlış)</span></li>`).join('')}</ol>`;
+}
+$('gecmisBtn').onclick=renderHistory;
+$('trend').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-action]');if(!b)return;
+  const id=b.dataset.id;const rec=records.find(x=>x.id===id);if(!rec)return;
+  if(b.dataset.action==='delete'){
+    if(!confirm('“'+rec.ad+'” denemesi silinsin mi?'))return;
+    records=records.filter(x=>x.id!==id);if(!saveRecords())return;renderHistory();msg('Deneme silindi.');
+  }else if(b.dataset.action==='detail'){
+    $('sonucBox').hidden=false;$('sonuc').innerHTML=`<p><b>${escapeHTML(rec.ad)}</b> · ${escapeHTML(rec.tarih||'')}</p>`+tabloHtml(rec.ozet);
+    const tags=Object.entries(rec.etiketler||{}).sort((a,b)=>Number(a[0])-Number(b[0]));
+    $('etiketSonuc').innerHTML=tags.length?'<h3>Konu etiketleri</h3><table><tbody>'+tags.map(([no,x])=>`<tr><td>${no}</td><td>${escapeHTML(x.ders)}</td><td>${escapeHTML(x.konu)}</td></tr>`).join('')+'</tbody></table>':'';
+    $('etiketBtn').disabled=true;$('sonucBox').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+});
+
+$('yedekBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify({app:'Deneme Takip',version:1,exportedAt:new Date().toISOString(),records},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='deneme-takip-yedek-'+todayISO()+'.json';a.click();URL.revokeObjectURL(url);msg('JSON yedeği indirildi.');
+};
+$('iceAktarBtn').onclick=()=>$('yedekDosya').click();
+$('yedekDosya').onchange=async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  try{
+    const obj=JSON.parse(await file.text());const incoming=Array.isArray(obj)?obj:obj.records;
+    if(!Array.isArray(incoming))throw new Error('Yedek dosyasında deneme listesi bulunamadı.');
+    const valid=incoming.filter(x=>x&&typeof x==='object'&&x.ad&&x.ozet&&x.ozet.temel&&x.ozet.klinik).map(x=>({...x,id:String(x.id||uid()),etiketler:x.etiketler||{}}));
+    if(!valid.length)throw new Error('Dosyada içe aktarılabilecek geçerli deneme yok.');
+    const map=new Map(records.map(x=>[x.id,x]));valid.forEach(x=>map.set(x.id,x));
+    const previous=records;records=[...map.values()].sort(byDate);if(!saveRecords()){records=previous;return;}
+    renderHistory();msg(valid.length+' deneme yedeğe eklendi. Aynı kimlikli kayıtlar güncellendi.');
+  }catch(err){msg('Yedek yüklenemedi: '+(err.message||err),true);}
+  finally{e.target.value='';}
+};
+$('tumunuSilBtn').onclick=()=>{
+  if(!records.length)return msg('Silinecek kayıt yok.');
+  if(!confirm('Bu tarayıcıdaki tüm deneme kayıtları kalıcı olarak silinsin mi? Önce JSON yedeği aldığından emin ol.'))return;
+  records=[];if(saveRecords()) {renderHistory();msg('Tüm yerel deneme kayıtları silindi.');}
+};
+
+renderHistory();
+</script>
+</body>
+</html>

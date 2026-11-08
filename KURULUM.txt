@@ -1,0 +1,40 @@
+DENEME TAKİP - GOOGLE GİRİŞSİZ SÜRÜM
+
+DOSYALAR
+- deneme.html: GitHub Pages'te mevcut deneme.html dosyanın yerine geçecek yeni arayüz.
+- functions/index.js: Firebase Cloud Function; Claude API anahtarı burada, tarayıcıya gönderilmez.
+- functions/package.json: Sunucu bağımlılıkları. Anthropic SDK dahil edilmiştir.
+
+1) FIREBASE CONSOLE
+A. Authentication > Sign-in method (veya Sign-in providers) > Anonymous sağlayıcısını etkinleştir.
+B. Cloud Firestore veritabanının kurulu ve etkin olduğundan emin ol. Sunucu tarafı günlük analiz sınırını burada tutar.
+
+2) FUNCTIONS KLASÖRÜ
+Mevcut Firebase projenin kök dizininde functions klasörünün içindeki index.js ve package.json dosyalarını bu pakettekilerle değiştir.
+Paketin functions klasöründe terminal aç:
+  npm install
+
+3) ANTHROPIC API ANAHTARI
+Anahtar daha önce Firebase Secret Manager'a kaydedilmediyse proje kökünde:
+  firebase functions:secrets:set ANTHROPIC_API_KEY
+Komut senden anahtarı ister. Anahtarı HTML dosyasına yazma.
+
+4) CLOUD FUNCTION'I YAYINLA
+Firebase projesinin kök dizininde:
+  firebase deploy --only functions:analyzeExam
+
+5) GITHUB PAGES
+Paket içindeki deneme.html dosyasını mevcut GitHub deposundaki denemetakip/deneme.html dosyasının yerine koy ve commit/push et.
+
+KULLANIM / VERİLER
+- Google giriş ekranı kaldırıldı. Arka planda Google hesabı gerektirmeyen anonim Firebase oturumu kullanılır; bu yalnızca Claude fotoğraf analiz fonksiyonunu çağırmak içindir.
+- Deneme kayıtları Firestore'a değil, o tarayıcının localStorage alanına kaydedilir.
+- Başka cihaz veya tarayıcıya geçerken uygulamadaki JSON yedeği indir / geri yükle özelliğini kullan.
+- Fotoğraf okuma ve yanlışlara konu etiketi ekleme internet bağlantısı gerektirir.
+- Function başına anonim kullanıcı için 24 saatte 30 çağrı sınırı uygulanır.
+
+GÜVENLİK NOTU
+Bu işleyişte Anthropic anahtarı sunucuda kalır. Ancak anonim oturum internete açık bir web uygulamasında tek başına kötüye kullanımı tamamen engellemez. GitHub Pages adresini geniş kitleyle paylaşmadan önce Firebase App Check (Web / reCAPTCHA Enterprise) etkinleştirip Cloud Function tarafında enforceAppCheck ayarını açmak gerekir. Günlük sınır ve maxInstances maliyet riskini azaltan ek önlemlerdir; tam App Check yerine geçmez.
+
+MODEL NOTU
+Mevcut yüklediğin index.js içindeki model adı korunmuştur: claude-sonnet-5-5. Anthropic hesabında bu model adı kullanılamıyorsa Function loglarında model hatası görülür; o zaman hesabında erişilebilen model kimliğiyle değiştirilmelidir.
